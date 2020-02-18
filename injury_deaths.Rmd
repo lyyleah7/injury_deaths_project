@@ -1,0 +1,68 @@
+---
+title: "project1"
+author: "Yiyang LIU"
+date: "2/17/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(broom)
+library(rvest)
+library(modelr)
+library(mgcv)
+knitr::opts_chunk$set(
+ echo = TRUE,
+ fig.width = 8, 
+ fig.height = 6,
+ fig.asp = 0.618,
+ out.width = "90%")
+theme_set(theme_bw() + 
+          theme(legend.position = "bottom",
+                legend.title = element_blank(),
+                plot.title = element_text(hjust = 0.5, size = 15),
+                plot.subtitle = element_text(hjust = 0.5, size = 12)))
+
+```
+
+##  Identify the leading causes of injury deaths by intent and mechanism
+
+
+```{r}
+data = read.csv("./NCHS_-_Injury_Mortality__United_States.csv") %>% 
+  janitor::clean_names()
+
+plot_mechanism = data %>% 
+  select(deaths, injury_mechanism) %>% 
+  mutate(injury_mechanism = as.factor(injury_mechanism)) %>% 
+  group_by(injury_mechanism) %>% 
+  summarise(total_deaths = sum(deaths)) %>%
+  ggplot(aes(x = reorder(injury_mechanism, -total_deaths), y = total_deaths))+
+  geom_bar(stat = "identity") +
+  labs(
+    x = "injury mechanism",
+    y = "total deaths",
+    title = "leading causes of injury deaths by mechanism"
+  )+
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text.x = element_text(angle = 60, hjust = 1))
+
+plot_mechanism
+
+plot_intent = data %>% 
+  select(deaths, injury_intent) %>% 
+  group_by(injury_intent) %>% 
+  summarise(total_deaths = sum(deaths)) %>% 
+  ggplot(aes(x = reorder(injury_intent, -total_deaths), y = total_deaths))+
+  geom_bar(stat = "identity") +
+  labs(
+    x = "injury intent",
+    y = "total deaths",
+    title = "leading causes of injury deaths by intent"
+  )+
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text.x = element_text(angle = 60, hjust = 1))
+
+plot_intent
+```
+
