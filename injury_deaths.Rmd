@@ -7,22 +7,17 @@ output: html_document
 
 ```{r setup, include=FALSE}
 library(tidyverse)
-library(broom)
-library(rvest)
-library(modelr)
-library(mgcv)
-knitr::opts_chunk$set(
- echo = TRUE,
- fig.width = 8, 
- fig.height = 6,
- fig.asp = 0.618,
- out.width = "90%")
-theme_set(theme_bw() + 
-          theme(legend.position = "bottom",
-                legend.title = element_blank(),
-                plot.title = element_text(hjust = 0.5, size = 15),
-                plot.subtitle = element_text(hjust = 0.5, size = 12)))
-
+library(shiny)
+library(flexdashboard)
+library(plotly)
+library(ggplot2)
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
 ```
 
 ##  Identify the leading causes of injury deaths by intent and mechanism
@@ -34,10 +29,11 @@ data = read.csv("./NCHS_-_Injury_Mortality__United_States.csv") %>%
 
 plot_mechanism = data %>% 
   select(deaths, injury_mechanism) %>% 
+  filter(injury_mechanism != "All Mechanisms") %>% 
   mutate(injury_mechanism = as.factor(injury_mechanism)) %>% 
   group_by(injury_mechanism) %>% 
   summarise(total_deaths = sum(deaths)) %>%
-  ggplot(aes(x = reorder(injury_mechanism, -total_deaths), y = total_deaths))+
+  ggplot2(aes(x = reorder(injury_mechanism, -total_deaths), y = total_deaths))+
   geom_bar(stat = "identity") +
   labs(
     x = "injury mechanism",
@@ -51,9 +47,10 @@ plot_mechanism
 
 plot_intent = data %>% 
   select(deaths, injury_intent) %>% 
+  filter(injury_intent != "All Intentions") %>% 
   group_by(injury_intent) %>% 
   summarise(total_deaths = sum(deaths)) %>% 
-  ggplot(aes(x = reorder(injury_intent, -total_deaths), y = total_deaths))+
+  ggplot2(aes(x = reorder(injury_intent, -total_deaths), y = total_deaths))+
   geom_bar(stat = "identity") +
   labs(
     x = "injury intent",
@@ -65,4 +62,6 @@ plot_intent = data %>%
 
 plot_intent
 ```
+
+
 
